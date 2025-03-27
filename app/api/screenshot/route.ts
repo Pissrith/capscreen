@@ -1,4 +1,3 @@
-// src/app/api/screenshot/route.ts
 import puppeteer from "puppeteer";
 import { NextResponse } from "next/server";
 
@@ -10,30 +9,40 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Missing URL" }, { status: 400 });
   }
 
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
+  console.log("Processing URL:", url);
 
-  const sizes = {
-    desktop: { width: 1920, height: 800 },
-    tablet: { width: 820, height: 1024 },
-    mobile: { width: 375, height: 667 },
-  };
+  try {
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
 
-  const screenshots: Record<string, string> = {};
+    const sizes = {
+      desktop: { width: 1280, height: 800 },
+      tablet: { width: 768, height: 1024 },
+      mobile: { width: 375, height: 667 },
+    };
 
-  for (const [device, size] of Object.entries(sizes)) {
-    await page.setViewport(size);
-    await page.goto(url, { waitUntil: "networkidle2" });
+    const screenshots: Record<string, string> = {};
 
-    // 📌 ถ่ายภาพเต็มหน้า
-    const screenshot = await page.screenshot({
-      encoding: "base64",
-      fullPage: true,
-    });
+    for (const [device, size] of Object.entries(sizes)) {
+      await page.setViewport(size);
+      await page.goto(url, { waitUntil: "networkidle2" });
 
-    screenshots[device] = `data:image/png;base64,${screenshot}`;
+      const screenshot = await page.screenshot({
+        encoding: "base64",
+        fullPage: true,
+      });
+      screenshots[device] = `data:image/png;base64,${screenshot}`;
+    }
+
+    await browser.close();
+
+    console.log("Screenshots captured:", Object.keys(screenshots)); // เช็คว่ามีภาพจริง
+    return NextResponse.json(screenshots);
+  } catch (error) {
+    console.error("Puppeteer Error:", error);
+    return NextResponse.json(
+      { error: "Failed to capture screenshot" },
+      { status: 500 }
+    );
   }
-
-  await browser.close();
-  return NextResponse.json(screenshots);
 }
