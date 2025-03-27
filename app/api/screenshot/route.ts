@@ -14,8 +14,8 @@ export async function GET(req: Request) {
   const page = await browser.newPage();
 
   const sizes = {
-    desktop: { width: 1280, height: 800 },
-    tablet: { width: 768, height: 1024 },
+    desktop: { width: 1920, height: 800 },
+    tablet: { width: 820, height: 1024 },
     mobile: { width: 375, height: 667 },
   };
 
