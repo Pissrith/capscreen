@@ -4,7 +4,12 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Loader2Icon, DownloadIcon } from "lucide-react";
 
 export default function Home() {
@@ -15,7 +20,10 @@ export default function Home() {
     mobile?: string;
   }>({});
   const [loading, setLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<{
+    src: string;
+    device: string;
+  } | null>(null);
 
   const captureScreenshot = async () => {
     if (!url) return;
@@ -57,7 +65,7 @@ export default function Home() {
             <Button
               onClick={captureScreenshot}
               disabled={loading || !url}
-              className="w-full"
+              className="w-full hover:cursor-pointer"
             >
               {loading ? (
                 <>
@@ -76,7 +84,7 @@ export default function Home() {
                     <h2 className="font-semibold">{device.toUpperCase()}</h2>
                     <div
                       className="w-full h-48 overflow-hidden rounded-md cursor-pointer"
-                      onClick={() => setSelectedImage(src)}
+                      onClick={() => setSelectedImage({ src, device })}
                     >
                       <img
                         src={src}
@@ -85,6 +93,7 @@ export default function Home() {
                       />
                     </div>
                     <Button
+                      className="hover:cursor-pointer"
                       size="sm"
                       variant="outline"
                       onClick={() => downloadImage(src, device)}
@@ -105,12 +114,28 @@ export default function Home() {
         onOpenChange={() => setSelectedImage(null)}
       >
         <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="text-center capitalize">
+              {selectedImage?.device || "Screenshot"} View
+            </DialogTitle>
+          </DialogHeader>
           {selectedImage && (
-            <img
-              src={selectedImage}
-              alt="Full Screenshot"
-              className="w-full max-h-[80vh] object-contain"
-            />
+            <div className="flex flex-col items-center space-y-4">
+              <img
+                src={selectedImage.src}
+                alt="Full Screenshot"
+                className="w-full max-h-[70vh] object-contain"
+              />
+              <Button
+                onClick={() =>
+                  downloadImage(selectedImage.src, selectedImage.device)
+                }
+                className="hover:cursor-pointer"
+              >
+                <DownloadIcon className="mr-2 h-4 w-4" />
+                Download {selectedImage.device.toUpperCase()} Screenshot
+              </Button>
+            </div>
           )}
         </DialogContent>
       </Dialog>
