@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {

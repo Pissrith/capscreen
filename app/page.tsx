@@ -1,5 +1,11 @@
 "use client";
+
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Loader2Icon, DownloadIcon } from "lucide-react";
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -33,70 +39,81 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center p-4">
-      <h1 className="text-2xl font-bold mb-4">Website Full Screenshot</h1>
-      <input
-        className="border p-2 rounded w-80 mb-4"
-        type="text"
-        placeholder="Enter website URL"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-      />
-      <button
-        onClick={captureScreenshot}
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-        disabled={loading}
-      >
-        {loading ? "Capturing..." : "Capture Full Page Screenshot"}
-      </button>
+    <div className="container mx-auto p-4">
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-center">Website Full Screenshot</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Input
+              type="text"
+              placeholder="Enter website URL"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              disabled={loading}
+            />
 
-      {loading && (
-        <p className="text-gray-500">Please wait, capturing screenshot...</p>
-      )}
+            <Button
+              onClick={captureScreenshot}
+              disabled={loading || !url}
+              className="w-full"
+            >
+              {loading ? (
+                <>
+                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                  Capturing...
+                </>
+              ) : (
+                "Capture Full Page Screenshot"
+              )}
+            </Button>
 
-      {images.desktop && (
-        <div className="mt-4 flex flex-col gap-6">
-          {/* ปุ่มดาวน์โหลดอยู่ด้านบน */}
-          <div className="flex gap-4">
-            {Object.entries(images).map(([device, src]) => (
-              <button
-                key={device}
-                onClick={() => downloadImage(src, device)}
-                className="bg-green-500 text-white px-3 py-1 rounded"
-              >
-                Download {device}
-              </button>
-            ))}
+            {images.desktop && (
+              <div className="grid grid-cols-3 gap-4">
+                {Object.entries(images).map(([device, src]) => (
+                  <div key={device} className="text-center space-y-2">
+                    <h2 className="font-semibold">{device.toUpperCase()}</h2>
+                    <div
+                      className="w-full h-48 overflow-hidden rounded-md cursor-pointer"
+                      onClick={() => setSelectedImage(src)}
+                    >
+                      <img
+                        src={src}
+                        alt={`${device} screenshot`}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => downloadImage(src, device)}
+                    >
+                      <DownloadIcon className="mr-2 h-4 w-4" />
+                      Download
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+        </CardContent>
+      </Card>
 
-          {/* แสดงรูปตัวอย่าง */}
-          {Object.entries(images).map(([device, src]) => (
-            <div key={device} className="border p-2 rounded w-full text-center">
-              <h2 className="font-semibold">{device.toUpperCase()}</h2>
-              <img
-                src={src}
-                alt={`${device} screenshot`}
-                className="w-1/3 mt-2 cursor-pointer border border-gray-300"
-                onClick={() => setSelectedImage(src)}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Modal สำหรับแสดงภาพเต็ม */}
-      {selectedImage && (
-        <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75"
-          onClick={() => setSelectedImage(null)}
-        >
-          <img
-            src={selectedImage}
-            alt="Full Screenshot"
-            className="max-w-full max-h-full"
-          />
-        </div>
-      )}
+      <Dialog
+        open={!!selectedImage}
+        onOpenChange={() => setSelectedImage(null)}
+      >
+        <DialogContent className="max-w-4xl">
+          {selectedImage && (
+            <img
+              src={selectedImage}
+              alt="Full Screenshot"
+              className="w-full max-h-[80vh] object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
