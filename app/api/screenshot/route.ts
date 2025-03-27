@@ -13,7 +13,8 @@ export async function GET(req: Request) {
 
   try {
     const browser = await puppeteer.connect({
-      browserWSEndpoint: "wss://browserless-ro4gw0sk8oo0c00o484ocsgg.m3ow.xyz/",
+      browserWSEndpoint:
+        "wss://browserless-ro4gw0sk8oo0c00o484ocsgg.m3ow.xyz?token=xO4tR3U5bYR29R9TUU7FlvyDZlu4eiDK",
     });
     const page = await browser.newPage();
 
