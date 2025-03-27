@@ -12,7 +12,9 @@ export async function GET(req: Request) {
   console.log("Processing URL:", url);
 
   try {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.connect({
+      browserWSEndpoint: "wss://browserless-ro4gw0sk8oo0c00o484ocsgg.m3ow.xyz/",
+    });
     const page = await browser.newPage();
 
     const sizes = {
